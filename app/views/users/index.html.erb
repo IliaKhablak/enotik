@@ -1,0 +1,317 @@
+<!-- Button trigger modal -->
+
+
+<!-- @@@@@@@@ NAVBAR @@@@@@@@@@@ -->
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">InstaClone</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+      <% if session[:user_id] == nil %>
+      <div id="sessio_nil" style="display: none;"></div>
+      <% else %>
+      <div id="sessio_nil" style="display: none;">bla</div>
+        <li class="active"><a href="" id="add_photo">Add photo <span class="sr-only">(current)</span></a></li>
+        <script type="text/javascript">
+          $('#add_photo').click(function(event){
+            event.preventDefault();
+            $('#add_modal').remove();
+            $('body').append('<div class="modal fade bs-modal-sm" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"><div class="modal-dialog modal-sm"><div class="modal-content" id="image_modal" style="border-radius:10px;"></div></div></div>');
+            $('#add_modal').modal();
+            $('#image_modal1').remove();
+            $('#image_modal').append('<div id="image_modal1" style="border-style:ridge;border-radius:10px;text-align:center;"></div>');
+            $('#image_modal1').append('<%= form_for :image, url: '/add_image', method: :post, remote: true, html: {multipart: true},authenticity_token: true do |x| %><h3>Choose image:</h3><br><br><%= x.file_field :avatar , style: "margin-left:50px;width:200px;", class: "btn btn-primary"%><br><img style="max-height:100px;max-width:100px;" id="blah"><div style="text-align:center;">------</div><br><%=x.text_field :description, placeholder: "your comment", style: "outline:none;border-radius:10px;text-align:center;"%><br><br><%= x.submit "Submit", id: "new_photo_subm", class: "btn btn-primary"%><br><%end%>');
+            $('#new_photo_subm').click(function(){
+              feed();
+            })
+            
+            $('#image_avatar').change(function(){
+              readURL(this);
+            })
+          })
+        </script>
+        <% end %>
+        <!-- <li><a href="#">Link</a></li> -->
+        <!-- <li class="dropdown"> -->
+          <form class="navbar-form navbar-left">
+            <div class="input-group">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-search" style="font-size: 15px;"></span></span><input type="text" class="form-control" placeholder="Search" id="search_input" autocomplete="off">
+            </div>
+        <!-- <button type="submit" class="btn btn-default">Submit</button> -->
+          </form>
+          <script type="text/javascript">
+                  $('#search_input').on('input',function(){
+                    $('#search_window').remove();
+                    $('body').append('<div id="search_window"></div>');
+                    a1 = ajaxbr('get', '/search',data1(['bla', $('#search_input').val()]));
+                    for (var i = 0; i<a1.length; i++){
+                      $('#search_window').append('<div style="margin: 10px;"><a href="/index2/'+a1[i].id+'"><img src='+a1[i].avatar.thumb.url+' style="height: 50px; width: 50px; border-radius: 50px; border: 3px solid gray;"> '+a1[i].name+'</a></div><span role="separator" class="divider"></span>');
+                    }
+                  });
+                  $('*:not("#search_window")').click(function(){
+                    $('#search_window').remove();
+                  });
+          </script>
+          <!-- <input type="text" class="dropdown-toggle form-control" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> -->
+          <!-- <ul class="dropdown-menu" id="search_menu">
+          </ul> -->
+          
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      <% if session[:user_id] == nil %>
+      <script type="text/javascript">function modal1(){$('#myModal').modal('toggle')}</script>
+      <li><a href="javascript:modal1()">Sign In</a></li>
+      <% else %>
+        <li class="active"><a href="/index2/<%=session[:user_id]%>" ><%=session[:username]%></a><div id="current_user_id" style="display: none;"><%=session[:user_id]%></div></li>
+        <!-- <li><img src='<%=@a.avatar.url%>' style="height: 50px; width: 50px; border-radius: 50px; border: 3px solid gray;"></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">Menu <span class="caret"></span>&nbsp;&nbsp;<div class="main_link_direct cont1"></div></a>
+          <ul class="dropdown-menu">
+            
+            <li><a href="" id="myprof">Profile</a></li>
+            <script type="text/javascript">
+
+            $('#myprof').click(function(event){
+              event.preventDefault();
+              $('#myModal1').modal();
+              a = ajaxbr('get', '/show',0)
+              $('#prof1').remove();
+              $('#prof').append('<div id="prof1" style="border-style:ridge;border-radius:10px;text-align:center;padding:10px"></div>');
+              $('#prof1').append('<div id="projavat"><img src="'+a.avatar.thumb.url+'" style="height:100px;width:100px; border-radius:50px;"><br><a href="" id="edit_avatar"> edit</a><br>-----</div>');
+              $('#edit_avatar').click(function(event){
+                event.preventDefault();
+                $('#projavat').hide();
+                $('#projavat').after('<div id="edit_avatar_div"></div>');
+                $('#edit_avatar_div').append('<%= form_for :user, url: update1_path, remote: true, html: {multipart: true},authenticity_token: true do |d| %><%= d.file_field :avatar, style: "margin-left:40px;width:200px;", class: "btn btn-primary" %><br><img style="max-height:100px;max-width:100px;border-radius:50px;" id="blah1"><br><br><%= d.submit "Submit", id: "avatar_click", class: "btn btn-primary"%><% end %><a href="" id="edit_avatar_back"> back</a>');
+                $('#user_avatar').change(function(){
+                  readURL(this);
+                });
+                $('#avatar_click').click(function(event){
+                  setTimeout("$('#myprof').trigger('click')", 500);
+                });
+                $('#edit_avatar_back').click(function(event){
+                  event.preventDefault();
+                  $('#edit_avatar_div').remove();
+                  $('#projavat').show();
+                });
+              })
+               
+              $('#prof1').append('<br><div id="projname" bla1="name">Your name: <h4>'+a.name+'</h4><a href="" id="edit_name"> edit</a><br>-----</div>');
+              $('#edit_name').click(function(event){
+                event.preventDefault();
+                $('#projname').hide();
+                $('#projname').after('<div id="new_name_div"></div>');
+                $('#new_name_div').append('New name:<br><br><input value="'+a.name+'" id="new_name" style="outline:none;border-radius:10px;text-align:center;"><a href="" id="new_name_subm"> submit</a><a href="" id="new_name_back"> | back</a>');
+                $('#new_name_back').click(function(event){
+                  event.preventDefault();
+                  $('#new_name_div').remove();
+                  $('#projname').show();
+                })
+                $('#new_name_subm').click(function(event){
+                  event.preventDefault();
+                  var a3 = ajaxbr('post','/update',data1(["name",$('#new_name').val()]));
+                  a3 = a3[0];
+                  if (a3 === "ok"){$('#myprof').trigger('click')}else{alert('There is some problems, try one more time')}
+                })
+              })
+              $('#prof1').append('<br><div id="projemail" bla1="email">Your email: <h4>'+a.email+'</h4><a href="" id="edit_email"> edit</a><br>-----</div>');
+              $('#edit_email').click(function(event){
+                event.preventDefault();
+                $('#projemail').hide();
+                $('#projemail').after('<div id="new_email_div"></div>');
+                $('#new_email_div').append('New email:<br><input value="'+a.email+'" id="new_email" style="outline:none;border-radius:10px;text-align:center;" type="<strong>email</strong>"><a href="" id="new_email_subm"> submit</a><a href="" id="new_email_back"> | back</a>');
+                $('#new_email_back').click(function(event){
+                  event.preventDefault();
+                  $('#new_email_div').remove();
+                  $('#projemail').show();
+                })
+                $('#new_email_subm').click(function(event){
+                  event.preventDefault();
+                  if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test($('#new_email').val()) === true){               
+                    var a3 = ajaxbr('post','/update',data1(["email",$('#new_email').val()]));
+                    a3 = a3[0];
+                    if (a3 === "ok"){$('#myprof').trigger('click')}else{alert('There is some problems, try one more time')}
+                  }else{alert("There is some problems, try one more time")}
+                })
+              })
+              $('#prof1').append('<br><div id="projdescr" bla1="description">Your description: <h4>'+a.description+'</h4><a href="" id="edit_description"> edit</a><br>-----</div><br>');
+              $('#edit_description').click(function(event){
+                event.preventDefault();
+                $('#projdescr').hide();
+                $('#projdescr').after('<div id="new_descr_div"></div>');
+                $('#new_descr_div').append('New description:<br><input value="'+a.description+'" style="outline:none;border-radius:10px;text-align:center;" id="new_descr"><a href="" id="new_descr_subm"> submit</a><a href="" id="new_descr_back"> | back</a>');
+                $('#new_descr_back').click(function(event){
+                  event.preventDefault();
+                  $('#new_descr_div').remove();
+                  $('#projdescr').show();
+                })
+                $('#new_descr_subm').click(function(event){
+                  event.preventDefault();
+                  var a3 = ajaxbr('post','/update',data1(["description",$('#new_descr').val()]));
+                  a3 = a3[0];
+                  if (a3 === "ok"){$('#myprof').trigger('click')}else{alert('There is some problems, try one more time')}
+                })
+              })
+              $('#prof1').append('<div id="projpass"><a href="" id="edit_password"> edit password</a></div>');
+              $('#edit_password').click(function(event){
+                event.preventDefault();
+                $('#projpass').hide();
+                $('#projpass').after('<div id="edit_password_div"></div>');
+                $('#edit_password_div').append('<div id="edit_password_div1"></div>');
+                $('#edit_password_div1').append('Old password: <br><br><input id="old_password" style="outline:none;border-radius:10px;text-align:center;" type="password"><a href="" id="edit_password_subm1"> submit</a>');
+                $('#edit_password_div').append('<a href="" id="edit_password_back"> back </a>');
+                $('#edit_password_back').click(function(event){
+                  event.preventDefault();
+                  $('#edit_password_div').remove();
+                  $('#projpass').show();
+                })
+                $('#edit_password_subm1').click(function(event){
+                  event.preventDefault();
+                  var a2 = ajaxbr('post', '/check', data1(['password', $('#old_password').val()]))
+                  a2 = a2[0];
+                  if (a2 === "ok"){
+                    $('#edit_password_div1').remove();
+                    $('#edit_password_back').before('<div id="edit_password_div2"></div>');
+                    $('#edit_password_div2').append('New password:<br><input id="new_password" style="outline:none;border-radius:10px;text-align:center;" type="password"><br>Confirm password:<br><input id="new_password_comf" style="outline:none;border-radius:10px;text-align:center;" type="password"><br><a href="" id="edit_password_subm2"> submit</a>');
+                    $('#edit_password_subm2').click(function(event){
+                      event.preventDefault();
+                      if($('#new_password').val().length > 5 && $('#new_password').val() === $('#new_password_comf').val()){
+                        var a3 = ajaxbr('post','/update2',data1(['password',$('#new_password').val()]));
+                        a3 = a3[0];
+                        if (a3 === "ok"){alert('Your password has changed')}else{alert('There is some problems, try one more time')}
+                        $('#myprof').trigger('click');
+                      }else{alert('Try one more time')}
+                    })
+                  } else{alert('Try one more time')}
+                })
+              })
+            });
+
+            
+            </script>
+            <li style="margin-left: 20px;"><div><a href="javascript:direct1()" class="cont1 main_link_direct">Direct&nbsp;&nbsp;</a></div></li>
+            <script type="text/javascript">message3();</script>
+            <script type="text/javascript">
+              
+            </script>
+            <li role="separator" class="divider"></li>
+            <li><%= link_to "Log out", log_out_url%></li>
+          </ul>
+        </li>
+      </ul>
+      <% end %>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<!-- @@@@@@@@@ Modal sign in @@@@@@@@@@@@-->
+<% if session[:user_id] == nil %>
+<div class="modal fade bs-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="bs-example bs-example-tabs">
+        <ul id="myTab" class="nav nav-tabs">
+          <li class="active"><a href="#signin" data-toggle="tab">Sign In</a></li>
+          <li class=""><a href="#signup" data-toggle="tab">Sign Up</a></li>
+        </ul>
+      </div>
+      <div class="modal-body">
+        <div id="myTabContent" class="tab-content">
+          <div class="tab-pane fade active in" id="signin" style="text-align: center;"> 
+            <%= form_for :user, url: users_new_url do |f| %>
+            You email: <br>
+            <%= f.text_field :email, type: 'email', style: "outline:none;border-radius:10px;text-align:center;"%><br><br>
+            Password: <br>
+            <%= f.password_field :password, type: 'password', style: "outline:none;border-radius:10px;text-align:center;"%>
+            <div style="text-align: center;"><a href="javascript:fogot()">Fogot password?</a></div><br>
+            <%= f.submit "Sign In", class: "btn btn-primary"%>  
+            <% end %>
+          </div>
+          <div class="tab-pane fade" id="signup" style="text-align: center;">  
+            <%= form_for :user, url: users_create_url do |f| %>
+            You email: <br>
+            <%= f.text_field :email, type: 'email', style: "outline:none;border-radius:10px;text-align:center;"%><br><br>
+            Password: <br>
+            <%= f.password_field :password, type: 'password', style: "outline:none;border-radius:10px;text-align:center;"%><br> <br> 
+            Confirm password: <br>
+            <%= f.password_field :password_confirmation, type: 'password', style: "outline:none;border-radius:10px;text-align:center;"%><br> <br> 
+            You name:<br>
+            <%= f.text_field :name, type: 'name', style: "outline:none;border-radius:10px;text-align:center;"%> <br> <br>
+            Description:<br>
+            <%= f.text_field :description, style: "outline:none;border-radius:10px;text-align:center;"%> <br> <br>
+            Avatar:<br><br>
+            <%= f.file_field :avatar, class: "btn btn-primary", style: "margin-left:40px;width:200px;"%> <br>
+            <img style="max-height:100px;max-width:100px;border-radius:50px;" id="blah"><br><br>
+            <script type="text/javascript">
+              $('#user_avatar').change(function(){
+                readURL(this);
+              });
+            </script>
+            <%= f.submit "Sign Up", class: "btn btn-primary"%> 
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $('#myModal').modal({
+  backdrop: 'static',
+  keyboard: false
+});
+</script>
+<% end %>
+<!-- @@@@@@@@@@@@@@@@@@@ ADD MODALE @@@@@@@@@@@@@@@@@@@@ -->
+<!-- <div class="modal fade bs-modal-sm" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" id="image_modal">
+    </div>
+  </div>
+</div> -->
+
+<!--  @@@@@@@@@@@@@@@ MODAL PROFILE @@@@@@@@@@@@@@@@@@@@ -->
+<div class="modal fade bs-modal-sm" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" id="prof" style="border-radius:10px;">
+    </div>
+  </div>
+</div>
+
+<!--  @@@@@@@@@@@@@@@ DIRECT MODAL @@@@@@@@@@@@@@@@@@@@ -->
+<!-- <div class="modal fade bs-modal-sm" id="direct_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" id="direct_content">
+    </div>
+  </div>
+</div> -->
+
+<!-- @@@@@@@@@@@@@@@@@@@ MODALE PHOTO @@@@@@@@@@@@@@@@@@@@ -->
+<!-- <div class="modal fade bs-modal-sm" id="photo_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" id="photo_modal1" style="width: 500px; height: 700px;">
+    </div>
+  </div>
+</div> -->
+<!-- @@@@@@@@@@@@@@@@@@@ MESSAGE MODAL @@@@@@@@@@@@@@@@@@ -->
+<!-- <div class="modal fade bs-modal-sm" id="message_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true"><div class="modal-dialog modal-sm"><div class="modal-content" id="messge_content"></div></div></div> -->
+<!-- @@@@@@@@@@@@@@@@@@ FEEED @@@@@@@@@@@@@@@@@@@@@@@@@@@--> 
+<div  id="feed" style="margin-top: 100px;display:flex; align-items: center;flex-direction:column;">
+</div>
+
+<script type="text/javascript" id="feed_script">
+  feed();
+</script>
+
+
